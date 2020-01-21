@@ -77,11 +77,8 @@ xx, yy = np.meshgrid(np.arange(-3,3,0.01), np.arange(-2,2,0.01))
 xy = np.array((xx.ravel(),yy.ravel()))
 grid = bias(xy)
 Y = W.dot(grid)
-for j in range(Y.shape[1]):
-	if Y[0][j] >= 0:
-		Y[0][j] = 1
-	else:
-		Y[0][j] = -1
+Y = np.where(Y>=0,1,-1)
+
 Y = Y.reshape(xx.shape)
 plt.contourf(xx,yy,Y,alpha = 0.4)
 plt.scatter(classA[0][:],classA[1][:])
