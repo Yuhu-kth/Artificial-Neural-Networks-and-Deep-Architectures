@@ -57,7 +57,7 @@ def firstW(X,T):
 def two_layer_perceptron(x):
     e = math.e
     phi = 2/(1+e.math.exp(-x)) - 1
-    gradientPhi = 0.5*(1+phi)*(1-phi)
+    Phi_prime = 0.5*(1+phi)*(1-phi)
     pass
 
 def single_layer_perceptron():
