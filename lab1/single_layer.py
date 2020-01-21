@@ -41,7 +41,6 @@ def Delta_rule(X, T, W, etha):
     """ 
     """
     delta_W = -np.dot(etha,(np.matmul(np.mat(W),np.mat(X))-T))*np.transpose(X)
-
     return delta_W
 
 def bias(x):
@@ -65,13 +64,13 @@ def single_layer_perceptron():
     X,T,W = _init_()
     epoch = 20
     etha = 0.01
-
+    
     for i in range(epoch):
         new_delta_W = Delta_rule(X, T, W, etha)
-        delta_W += new_delta_W
+        W += new_delta_W
         # plot the decision boundary: Wx=0
         # plt.plot(X,WX)
-        print(delta_W)
+        print(W)
     pass
 
 if __name__ == "__main__":
