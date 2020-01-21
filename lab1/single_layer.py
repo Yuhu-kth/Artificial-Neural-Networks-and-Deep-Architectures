@@ -50,7 +50,7 @@ def bias(x):
 
 def firstW(X,T):
     n = X.shape[0] # should be the row of inputs matrix
-    m = T.shape[1] # should be the row of Tagets matrix
+    m = T.shape[0] # should be the row of Tagets matrix
     w = np.random.randn(0,(m,n))
     return w
 
