@@ -2,6 +2,15 @@ import numpy as np
 import math
 from math import *
 import matplotlib.pyplot as plt
+<<<<<<< HEAD
+=======
+
+def Delta_rule(X, T, W, etha):
+    """ :
+    """
+    delta_W = -etha*(W*X-T)*X.transpose
+    return delta_W
+>>>>>>> 1de0a1ba1468da0e833536dc332a6f9d06240ada
 
 def _init_():
     """This function generates data, targets and weight matrix
@@ -72,7 +81,11 @@ def single_layer_perceptron():
         # plt.plot(X,WX)
         print(delta_W)
     pass
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     single_layer_perceptron()
 
+=======
+# generate_data()
+>>>>>>> 1de0a1ba1468da0e833536dc332a6f9d06240ada
