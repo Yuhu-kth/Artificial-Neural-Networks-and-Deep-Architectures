@@ -40,7 +40,8 @@ def _init_():
 def Delta_rule(X, T, W, etha):
     """ 
     """
-    delta_W = -etha*(W*X-T)*X.transpose
+    delta_W = -np.dot(etha,(np.matmul(np.mat(W),np.mat(X))-T))*np.transpose(X)
+
     return delta_W
 
 def bias(x):
@@ -51,13 +52,13 @@ def bias(x):
 def firstW(X,T):
     n = X.shape[0] # should be the row of inputs matrix
     m = T.shape[0] # should be the row of Tagets matrix
-    w = np.random.randn(0,(m,n))
+    w = np.random.normal(0,0.5,size=(m,n))
     return w
 
 def two_layer_perceptron(x):
     e = math.e
     phi = 2/(1+e.math.exp(-x)) - 1
-    Phi_prime = 0.5*(1+phi)*(1-phi)
+    phi_prime = 0.5*(1+phi)*(1-phi)
     pass
 
 def single_layer_perceptron():
