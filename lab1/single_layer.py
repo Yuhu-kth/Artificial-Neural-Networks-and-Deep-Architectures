@@ -29,7 +29,7 @@ def _init_():
     X = np.concatenate((classA,classB),axis=1)
     X = bias(X)
     T = np.ones((1,n*2))
-    T[n:] += -2
+    T[0][n:] += -2
     W = firstW(X,T)
     
     # plt.scatter(classA[0][:],classA[1][:])
