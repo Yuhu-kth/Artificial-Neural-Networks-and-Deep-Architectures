@@ -3,6 +3,10 @@ import math
 from math import *
 import matplotlib.pyplot as plt
 
+epoch = 20
+etha = 0.01
+Alpha = 0.4
+Nhidden = 4 # the number of nodes in hidden layer, not sure so far
 def _init_():
     """This function generates data, targets and weight matrix
     :return: X,the matrix of input patterns
@@ -16,7 +20,7 @@ def _init_():
     
     mA = [1.0, 0.5]
     mB = [-1.0, 0.0]
-    sigma = 0.5
+    sigma = 0.2
 
     classA = np.zeros((2,n))
     classB = np.zeros((2,n))
@@ -31,16 +35,17 @@ def _init_():
     T = np.ones((1,n*2))
     T[0][n:] += -2
     W = firstW(X,T)
-    
-    # plt.scatter(classA[0][:],classA[1][:])
-    # plt.scatter(classB[0][:], classB[1][:])
-    # plt.show()
-    return X, T, W
+
+    return classA, classB, X, T, W
 
 def Delta_rule(X, T, W, etha):
     """ 
     """
     delta_W = -np.dot(etha,(np.matmul(np.mat(W),np.mat(X))-T))*np.transpose(X)
+    return delta_W
+
+def single_layer_perceptron(X, T , y, etha):
+    delta_W = np.dot(etha,(T-y))*np.transpose(X)
     return delta_W
 
 def bias(x):
@@ -54,25 +59,61 @@ def firstW(X,T):
     w = np.random.normal(0,0.5,size=(m,n))
     return w
 
-def two_layer_perceptron(x):
-    e = math.e
-    phi = 2/(1+e.math.exp(-x)) - 1
+# def two_layer_perceptron(x,nHidden):
+#     phi = 2/(1+math.exp(-x)) - 1
+#     phi_prime = 0.5*(1+phi)*(1-phi)
+#     pass
+def phi(x):
+    phi = 2/(1+math.exp(-x)) - 1
     phi_prime = 0.5*(1+phi)*(1-phi)
-    pass
+    return phi,phi_prime
 
-def single_layer_perceptron():
-    X,T,W = _init_()
-    epoch = 20
-    etha = 0.01
+# implementation of 2.3.1-2.3.3 following the instructions 
+def backprop(Nhidden):
+    # the forward pass
+    X, T, W = _init_()
+    hin = W*X
+    hout = bias(phi(hin).phi)
+    oin = v*hout #TODO: not sure what is v!
+    out = phi(oin).phi
+    # the backward pass
+    delta_o = 0.5*np.multiply((out-T),np.multiply((1+out),(1-out)))
+    delta_h = 0.5*np.multiply(V_prime * delta_o, np.multiply((1+hout),(1-hout))) #TODO: not sure what is V_prime
+    delta_h = delta_h(1:Nhidden,:)
+    #Weight update TODO: check v !
+    dw = np.multiply(np.multiply(dw, alpha)- (delta_h*pat_prime), (1-Alpha))
+    dv = np.multiply(np.multiply(dv, alpha)- (delta_o*hout_prime), (1-Alpha))
+    W = W + np.multiply(dw,etha)
+    V = v + np.multiply(dv,etha)
+    return W, V
+
+def learning():
+    classA, classB, X, T, W = _init_()
     
     for i in range(epoch):
         new_delta_W = Delta_rule(X, T, W, etha)
         W += new_delta_W
         # plot the decision boundary: Wx=0
         # plt.plot(X,WX)
-        print(W)
+        
+        xx, yy = np.meshgrid(np.arange(-3,3,0.01), np.arange(-2,2,0.01))
+        xy = np.array((xx.ravel(),yy.ravel()))
+        grid = bias(xy)
+        Y = W.dot(grid)
+        Y = np.where(Y>=0,1,-1)
+
+        Y = Y.reshape(xx.shape)
+        plt.contourf(xx,yy,Y,alpha = Alpha)
+        plt.scatter(classA[0][:],classA[1][:])
+        plt.scatter(classB[0][:], classB[1][:])
+        plt.show()
+
+def sequential_learning():
+    
+    for i in range(epoch):
+        backprop(Nhidden)
     pass
 
 if __name__ == "__main__":
-    single_layer_perceptron()
-
+    # single_layer_perceptron()
+    learning()
