@@ -3,7 +3,7 @@ import math
 from math import *
 import matplotlib.pyplot as plt
 
-epoch = 20
+epoch = 1
 etha = 0.001
 Alpha = 0.4
 Nhidden = 4 # the number of nodes in hidden layer, not sure so far
@@ -34,7 +34,7 @@ def _init_():
     X = bias(X)
     T = np.ones((1,n*2))
     T[0][n:] += -2
-    W = firstW(X,T)
+    W = firstW(X.shape[0],T.shape[0])
     Wp = W.copy()
     yp = np.zeros((T.shape))
 
@@ -59,40 +59,50 @@ def bias(x):
 	x = np.append(x, bias, axis=0)
 	return x
 
-def firstW(X,T):
-    n = X.shape[0] # should be the row of inputs matrix
-    m = T.shape[0] # should be the row of Tagets matrix
+def firstW(n,m):
+    """initialization of weight matrix
+    
+    :param n: number of the row of inputs matrix
+    :type n: int
+    :param m: number of the row of output matrix
+    :type m: int
+    :return: weight matrix
+    :rtype: array
+    """
     w = np.random.normal(0,0.5,size=(m,n))
     return w
-
 # def two_layer_perceptron(x,nHidden):
 #     phi = 2/(1+math.exp(-x)) - 1
 #     phi_prime = 0.5*(1+phi)*(1-phi)
 #     pass
-def phi(x):
-    phi = 2/(1+math.exp(-x)) - 1
-    phi_prime = 0.5*(1+phi)*(1-phi)
-    return phi,phi_prime
+def phi(X):
+    for i in range(X.shape[0]):
+        for j in range(X.shape[1]):
+            X[i][j] = 2/(1+math.exp(-X[i][j])) - 1
+    return X
 
 # implementation of 2.3.1-2.3.3 following the instructions 
 def backprop(Nhidden):
     # the forward pass
-    X, T = _init_()
-    W = firstW(X,nHidden)
-    v = firstW(nHidden,1)
-    hin = W*X
-    hout = phi(hin).phi
-    oin = v*hout #TODO: not sure what is v!
-    out = phi(oin).phi
+    _, _, X ,T, _, _, _ = _init_()
+    w = firstW(X.shape[0],Nhidden)
+    v = firstW(Nhidden,1)
+    hin = w.dot(X)
+    hout = phi(hin)
+    oin = v.dot(hout) 
+    out = phi(oin)
     # the backward pass
     delta_o = 0.5*np.multiply((out-T),np.multiply((1+out),(1-out)))
-    delta_h = 0.5*np.multiply(v.T * delta_o, np.multiply((1+hout),(1-hout))) #TODO: not sure what is V_prime
-    delta_h = delta_h(1:Nhidden,:)
-    #Weight update TODO: check v !
-    dw = np.multiply(np.multiply(dw, alpha)- (delta_h*X), (1-Alpha))
-    dv = np.multiply(np.multiply(dv, alpha)- (delta_o*hout.T), (1-Alpha))
-    W = W + np.multiply(dw,etha)
+    delta_h = 0.5*np.multiply(v.T * delta_o, np.multiply((1+hout),(1-hout))) 
+    #Weight update 
+    dw = np.zeros((Nhidden,X.shape[0])) #TODO check the dimensions of matrix
+    dv = np.zeros((1,Nhidden))
+    dw = np.dot(dw, Alpha)- np.dot(delta_h,np.transpose(X))
+    dv = np.dot(dv, Alpha)- np.dot(delta_o,np.transpose(hout))
+    W = w + np.multiply(dw,etha)
     V = v + np.multiply(dv,etha)
+    print("W:",W)
+    print("V:",V)
     return W, V
 
 def learning():
@@ -135,11 +145,18 @@ def learning():
 
 def sequential_learning():
     for i in range(epoch):
-        backprop(Nhidden)
-    pass
+        for x in range(X):
+             #initialize dw, dv
+            dw = np.zeros((Nhidden,X.shape[0])) #TODO check the dimensions of matrix
+            dv = np.zeros((1,Nhidden))
+            backprop(Nhidden)
+
 
 
 if __name__ == "__main__":
     # single_layer_perceptron()
-    learning()
+    # learning()
+    # sequential_learning()
+    backprop(Nhidden)
+
 
