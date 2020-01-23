@@ -92,10 +92,15 @@ def backprop(Nhidden):
 
 def learning():
     classA, classB, X, T, W = _init_()
-    
+    Wp = W.copy()
+    yp = np.zeros((T.shape))
     for i in range(epoch):
         new_delta_W = Delta_rule(X, T, W, etha)
         W += new_delta_W
+	
+	Wp += Perceptron(X,T,eta,yp)
+	yp = Wp.dot(X)
+	yp = np.where(yp>=0,1,-1)
         # plot the decision boundary: Wx=0
         # plt.plot(X,WX)
         
@@ -106,10 +111,18 @@ def learning():
         Y = np.where(Y>=0,1,-1)
 
         Y = Y.reshape(xx.shape)
-        plt.contourf(xx,yy,Y,alpha = Alpha)
-        plt.scatter(classA[0][:],classA[1][:])
-        plt.scatter(classB[0][:], classB[1][:])
-        plt.show()
+	plt.figure()
+	plt.subplot(121)
+	plt.contourf(xx,yy,Y,alpha = 0.4)
+	plt.scatter(classA[0][:],classA[1][:])
+	plt.scatter(classB[0][:], classB[1][:])
+	plt.title("Delta Learning")
+	plt.subplot(122)
+	plt.contourf(xx,yy,yp,alpha = 0.4)
+	plt.scatter(classA[0][:],classA[1][:])
+	plt.scatter(classB[0][:], classB[1][:])
+	plt.title("Perceptron Learning")
+	plt.show()
 
 def sequential_learning():
     
@@ -117,25 +130,6 @@ def sequential_learning():
         backprop(Nhidden)
     pass
 
-xx, yy = np.meshgrid(np.arange(-3,3,0.01), np.arange(-2,2,0.01))
-xy = np.array((xx.ravel(),yy.ravel()))
-grid = bias(xy)
-Y = W.dot(grid)
-Y = np.where(Y>=0,1,-1)
-
-Y = Y.reshape(xx.shape)
-plt.figure()
-plt.subplot(121)
-plt.contourf(xx,yy,Y,alpha = 0.4)
-plt.scatter(classA[0][:],classA[1][:])
-plt.scatter(classB[0][:], classB[1][:])
-plt.title("Delta Learning")
-plt.subplot(122)
-plt.contourf(xx,yy,yp,alpha = 0.4)
-plt.scatter(classA[0][:],classA[1][:])
-plt.scatter(classB[0][:], classB[1][:])
-plt.title("Perceptron Learning")
-plt.show()
 
 if __name__ == "__main__":
     # single_layer_perceptron()
