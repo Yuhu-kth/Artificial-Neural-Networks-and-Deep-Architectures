@@ -86,20 +86,20 @@ def backprop(Nhidden):
     # the forward pass
     _, _, X ,T, _, _, _ = _init_()
     w = firstW(X.shape[0],Nhidden) # 4X3
-    v = firstW(Nhidden,1) # 1X4
+    v = firstW(Nhidden+1,1) # 1X5
     hin = w.dot(X) # 4X200
     hout = phi(hin) # 4X200
-    hout = bias(hout) 
+    hout = bias(hout) # 5X200
     oin = v.dot(hout) # 1X200
     out = phi(oin) # 1X200
     # the backward pass
     delta_o = 0.5*np.multiply((out-T),np.multiply((1+out),(1-out)))          # 1X200
     delta_h = 0.5*np.multiply(v.T * delta_o, np.multiply((1+hout),(1-hout))) # 4X200
-    delta_h = delta_h[0 : Nhidden-1,:] # 3X200
+    delta_h = delta_h[0:Nhidden,:] # 3X200
     # Weight update 
     dw = np.zeros((Nhidden,X.shape[0])) #TODO check the dimensions of matrix 4X3
-    dv = np.zeros((1,Nhidden)) # 4X1
-    dw = np.dot(dw, Alpha)- np.dot(delta_h,np.transpose(X))
+    dv = np.zeros((1,Nhidden+1)) # 1X5
+    dw = np.dot(dw, Alpha)- np.dot(delta_h,np.transpose(X)) #(4X3 - 3X3)
     dv = np.dot(dv, Alpha)- np.dot(delta_o,np.transpose(hout))
     W = w + np.multiply(dw,etha)
     V = v + np.multiply(dv,etha)
