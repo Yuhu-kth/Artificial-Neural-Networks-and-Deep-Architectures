@@ -4,7 +4,7 @@ from math import *
 import matplotlib.pyplot as plt
 
 epoch = 20
-etha = 0.01
+etha = 0.001
 Alpha = 0.4
 Nhidden = 4 # the number of nodes in hidden layer, not sure so far
 def _init_():
@@ -75,42 +75,44 @@ def phi(x):
     return phi,phi_prime
 
 # implementation of 2.3.1-2.3.3 following the instructions 
-"""def backprop(Nhidden):
+def backprop(Nhidden):
     # the forward pass
-    X, T, W = _init_()
+    X, T = _init_()
+    W = firstW(X,nHidden)
+    v = firstW(nHidden,1)
     hin = W*X
-    hout = bias(phi(hin).phi)
+    hout = phi(hin).phi
     oin = v*hout #TODO: not sure what is v!
     out = phi(oin).phi
     # the backward pass
     delta_o = 0.5*np.multiply((out-T),np.multiply((1+out),(1-out)))
-    delta_h = 0.5*np.multiply(V_prime * delta_o, np.multiply((1+hout),(1-hout))) #TODO: not sure what is V_prime
+    delta_h = 0.5*np.multiply(v.T * delta_o, np.multiply((1+hout),(1-hout))) #TODO: not sure what is V_prime
     delta_h = delta_h(1:Nhidden,:)
     #Weight update TODO: check v !
-    dw = np.multiply(np.multiply(dw, alpha)- (delta_h*pat_prime), (1-Alpha))
-    dv = np.multiply(np.multiply(dv, alpha)- (delta_o*hout_prime), (1-Alpha))
+    dw = np.multiply(np.multiply(dw, alpha)- (delta_h*X), (1-Alpha))
+    dv = np.multiply(np.multiply(dv, alpha)- (delta_o*hout.T), (1-Alpha))
     W = W + np.multiply(dw,etha)
     V = v + np.multiply(dv,etha)
-    return W, V"""
+    return W, V
 
 def learning():
     classA, classB, X, T, W, Wp, yp = _init_()
 
     for i in range(epoch):
-        new_delta_W = Delta_rule(X, T, W, etha)
-        W += new_delta_W
+        W += Delta_rule(X, T, W, etha)
         Wp += Perceptron(X,T,etha,yp)
         yp = Wp.dot(X)
         yp = np.where(yp>=0,1,-1)
+        print(W)
         # plot the decision boundary: Wx=0
         # plt.plot(X,WX)
         
         xx, yy = np.meshgrid(np.arange(-3,3,0.01), np.arange(-2,2,0.01))
         xy = np.array((xx.ravel(),yy.ravel()))
         grid = bias(xy)
+
         Y = W.dot(grid)
         Y = np.where(Y>=0,1,-1)
-
         Y = Y.reshape(xx.shape)
 
 
@@ -132,7 +134,6 @@ def learning():
         plt.show()
 
 def sequential_learning():
-    
     for i in range(epoch):
         backprop(Nhidden)
     pass
