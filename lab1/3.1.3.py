@@ -3,7 +3,7 @@ import numpy as np
 import math
 from math import *
 import matplotlib.pyplot as plt
-
+import random 
 epoch = 20
 etha = 0.001
 Alpha = 0.4
@@ -29,7 +29,7 @@ def _init_():
     classA = np.zeros((2,n))
     classB = np.zeros((2,n))
     #TODO check this line below
-    classA[0][:] = [np.random.randn(1,round(0.5*n)) * sigmaA - mA[0], np.random.randn(1,round(0.5*n)) * sigmaA + mA[0]]
+    classA[0] = np.hstack((np.random.randn(1,round(0.5*n)) * sigmaA - mA[0], np.random.randn(1,round(0.5*n)) * sigmaA + mA[0]))
     classA[1][:] = np.random.randn(1,n) * sigmaA + mA[1]
     classB[0][:] = np.random.randn(1,n) * sigmaB + mB[0]
     classB[1][:] = np.random.randn(1,n) * sigmaB + mB[1]
@@ -37,39 +37,51 @@ def _init_():
     #remove data samples
     choice = 1
     if choice == 1:
+        new_classA = np.zeros((2,75))
+        new_classB = np.zeros((2,75))
         #1.random 25% from each class
-        classA = remove(classA,25)
-        classB = remove(classB,25)
+        np.random.shuffle(classA)
+        new_classA[0] = classA[0][25:]
+        new_classA[1] = classA[1][25:]
+        np.random.shuffle(classB)
+        new_classB[0] = classB[0][25:]
+        new_classB[1] = classB[1][25:]
+        T = np.ones((1,n*2-50))
+        T[0][n:] += -2
     elif choice == 2:
         #2.random 50% from classA
         classA = remove(classA,50)
     elif choice == 3:
         #3.random 50% from classB
         classB = remove(classB,50)
-    elif choice == 4:
-        #4.20% from classA(1,:)<0, 80 from classA(1,:)>0
-        # subsetA = np.zeros
-        for i in range(len(classA[0][:])):
-            if classA[0][i] < 0 :
-                subsetA.append(classA[0][i])
+    elif choice == None:
+        pass
+    # elif choice == 4:
+    #     #4.20% from classA(1,:)<0, 80 from classA(1,:)>0
+    #     # subsetA = np.zeros
+    #     # for i in range(len(classA[0][:])):
+    #     #     if classA[0][i] < 0 :
+    #     #         subsetA.append(classA[0][i])
+    
 
 
 
+    # X = np.concatenate((classA,classB),axis=1)
+    X = np.concatenate((new_classA,new_classB),axis=1)
+    X = bias(X)
 
-    X = np.concatenate((classA,classB),axis=1)
-    # X = bias(X)
-    T = np.ones((1,n*2))
-    T[0][n:] += -2
     W = firstW(X.shape[0],T.shape[0])
     Wp = W.copy()
     yp = np.zeros((T.shape))
 
 
-    return classA, classB, X, T, W, Wp, yp
+    return new_classA, new_classB, X, T, W, Wp, yp
+
 def remove(data, number):
+    datalist = list(data)
     for i in range(number):
-        data.remove(random.choice(data))
-    return data
+        datalist.remove(random.choice(datalist))
+    return datalist
 
 def Perceptron(X,T,etha,y):
 	return -etha*(y - T).dot(X.T)
@@ -118,15 +130,15 @@ def learning():
         
         xx, yy = np.meshgrid(np.arange(-3,3,0.01), np.arange(-2,2,0.01))
         xy = np.array((xx.ravel(),yy.ravel()))
-        # grid = bias(xy)
+        grid = bias(xy)
 
-        # Y = W.dot(bias)
-        Y = W.dot(xy)
+        Y = W.dot(grid)
+        # Y = W.dot(xy)
         Y = np.where(Y>=0,1,-1)
         Y = Y.reshape(xx.shape)
 
-        # ypg = Wp.dot(grid)
-        ypg = Wp.dot(xy)
+        ypg = Wp.dot(grid)
+        # ypg = Wp.dot(xy)
         ypg = np.where(ypg>=0,1,-1)
         ypg = ypg.reshape(xx.shape)
 
