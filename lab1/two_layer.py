@@ -4,7 +4,7 @@ from math import *
 import matplotlib.pyplot as plt
 
 def bias(x):
-    bias = np.zeros((1,x.shape[1]))
+    bias = np.ones((1,x.shape[1]))
     x = np.append(x, bias, axis=0)
     return x
 
@@ -27,6 +27,7 @@ def backprop(Nhidden,X,T,w,v,dw,dv):
 
     #Weight update 
     dw = np.dot(dw, Alpha)- np.dot(delta_h,np.transpose(X))
+    temp = np.dot(delta_h,np.transpose(X))
     dv = np.dot(dv, Alpha)- np.dot(delta_o,np.transpose(hout))
     W = w + np.multiply(dw,etha)
     V = v + np.multiply(dv,etha)
@@ -40,10 +41,10 @@ def phi(X):
             X[i][j] = 2/(1+math.exp(-X[i][j])) - 1
     return X
 
-epoch = 50
-etha = 0.001
+epoch = 100
+etha = 0.03
 Alpha = 0.4
-Nhidden = 4 # the number of nodes in hidden layer, not sure so far
+Nhidden = 10 # the number of nodes in hidden layer, not sure so far
 
 np.random.seed(13)
 n = 100
