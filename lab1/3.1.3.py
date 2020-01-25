@@ -50,10 +50,21 @@ def _init_():
         T[0][n:] += -2
     elif choice == 2:
         #2.random 50% from classA
-        classA = remove(classA,50)
+        new_classA = np.zeros((2,50))
+        np.random.shuffle(classA)
+        new_classA[0] = classA[0][50:]
+        new_classA[1] = classA[1][50:]
+        T = np.ones((1,n*2-50))
+        T[0][n:] += -2
+
     elif choice == 3:
         #3.random 50% from classB
-        classB = remove(classB,50)
+        new_classB = np.zeros((2,50))
+        np.random.shuffle(classB)
+        new_classB[0] = classB[0][50:]
+        new_classB[1] = classB[1][50:]
+        T = np.ones((1,n*2-50))
+        T[0][n:] += -2
     elif choice == None:
         pass
     # elif choice == 4:
@@ -76,12 +87,6 @@ def _init_():
 
 
     return new_classA, new_classB, X, T, W, Wp, yp
-
-def remove(data, number):
-    datalist = list(data)
-    for i in range(number):
-        datalist.remove(random.choice(datalist))
-    return datalist
 
 def Perceptron(X,T,etha,y):
 	return -etha*(y - T).dot(X.T)
