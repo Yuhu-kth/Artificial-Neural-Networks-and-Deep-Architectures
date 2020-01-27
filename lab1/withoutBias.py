@@ -18,8 +18,8 @@ def _init_():
     """
     n = 100
     
-    # mA = [1.0, 0.5]
-    # mB = [-1.0, 0.0]
+    # mA = [2.0, 1.5]
+    # mB = [5.0, 0.5]
     mA = [1.0,1.0]
     mB = [-1.0,1.0]
     sigma = 0.2
@@ -88,7 +88,7 @@ def learning():
         # plot the decision boundary: Wx=0
         # plt.plot(X,WX)
         
-        xx, yy = np.meshgrid(np.arange(-3,3,0.01), np.arange(-2,2,0.01))
+        xx, yy = np.meshgrid(np.arange(-4,4,0.01), np.arange(-4,4,0.01))
         xy = np.array((xx.ravel(),yy.ravel()))
         # grid = bias(xy)
 
@@ -103,16 +103,16 @@ def learning():
         ypg = ypg.reshape(xx.shape)
 
         plt.figure()
-        plt.subplot(121)
-        plt.contourf(xx,yy,Y,alpha = 0.4)
-        plt.scatter(classA[0][:],classA[1][:])
-        plt.scatter(classB[0][:], classB[1][:])
-        plt.title("Delta Learning")
-        plt.subplot(122)
+        # plt.subplot(121)
+        # plt.contourf(xx,yy,Y,alpha = 0.4)
+        # plt.scatter(classA[0][:],classA[1][:])
+        # plt.scatter(classB[0][:], classB[1][:])
+        # plt.title("Delta Learning")
+        # plt.subplot(122)
         plt.contourf(xx,yy,ypg,alpha = 0.4)
         plt.scatter(classA[0][:],classA[1][:])
         plt.scatter(classB[0][:], classB[1][:])
-        plt.title("Perceptron Learning")
+        plt.title("Perceptron Learning,mA[1.0,1.0],mB[-1.0,1.0]")
         plt.show()
 if __name__ == "__main__":
     learning()
