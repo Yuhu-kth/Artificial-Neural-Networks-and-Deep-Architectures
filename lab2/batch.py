@@ -31,7 +31,9 @@ def compute_WeightMatrix():
     # TODO how to initialize weight matrix
     W0 = []
     W # TODO how to update W?
-    for i in range(X):
+    Xtrain = dataGenerate.train
+    Xtest = dataGenerate.test
+    for i in range(Xtrain):
         phiX = phi(x,miu,sigma) #TODO for each x, there is a miu and sigma?
         error = abs(math.dot(phiX,W)-sin(x))
 
