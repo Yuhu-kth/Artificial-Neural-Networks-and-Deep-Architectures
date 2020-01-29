@@ -23,7 +23,19 @@ def dataGenerate():
     test = np.random.uniform(0.05,2*math.pi,0.1)
     return train,test
 
+def phi(x,miu,sigma):
+    phi = math.exp((-(x-miu)**2)/(2*(sigma**2))
+    return phi
+
 def compute_WeightMatrix():
-    # initialize weight matrix
+    # TODO how to initialize weight matrix
     W0 = []
+    W # TODO how to update W?
+    for i in range(X):
+        phiX = phi(x,miu,sigma) #TODO for each x, there is a miu and sigma?
+        error = abs(math.dot(phiX,W)-sin(x))
+
+
+
+
 
