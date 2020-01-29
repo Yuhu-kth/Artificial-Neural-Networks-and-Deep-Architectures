@@ -5,7 +5,6 @@ def __init__(self,N,node,X,interval):
     N = 5    #dimension of pattern
     node = 3 #number of nodes
     X = 
-    interval = [0,2*math.pi]
     # Two functions: sin(2x); square(2x)
     pass
 
@@ -34,7 +33,7 @@ def compute_WeightMatrix():
     Xtrain = dataGenerate.train
     Xtest = dataGenerate.test
     for i in range(Xtrain):
-        phiX = phi(x,miu,sigma) #TODO for each x, there is a miu and sigma?
+        phiX = phi(x,miu,sigma) #TODO for each x, is there a miu and sigma corresponding to x?
         error = abs(math.dot(phiX,W)-sin(x))
 
 
