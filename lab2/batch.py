@@ -1,42 +1,73 @@
-import numpy as np
-import math 
-
-def __init__(self,N,node,X,interval):
-    N = 5    #dimension of pattern
-    node = 3 #number of nodes
-    X = 
-    # Two functions: sin(2x); square(2x)
-    pass
-
-def sin(x):
-    return math.sin(2*x)
+import numpy as np 
+import matplotlib.pyplot as plt 
 
 def square(x):
-    if math.sin(2*x)>=0
-        return 1
-    else 
-        return -1
-        
-def dataGenerate():
-    train = np.random.uniform(0,2*math.pi,0.1)
-    test = np.random.uniform(0.05,2*math.pi,0.1)
-    return train,test
+	f = []
+	y = np.sin(2*x)
+	print(y.shape)
+	for ys in y:
+		if ys >= 0:
+			f.append(1)
+		else:
+			f.append(-1)
+	return f
 
-def phi(x,miu,sigma):
-    phi = math.exp((-(x-miu)**2)/(2*(sigma**2))
-    return phi
+def sine(x):
+	y = np.sin(x)
+	return y
 
-def compute_WeightMatrix():
-    # TODO how to initialize weight matrix
-    W0 = []
-    W # TODO how to update W?
-    Xtrain = dataGenerate.train
-    Xtest = dataGenerate.test
-    for i in range(Xtrain):
-        phiX = phi(x,miu,sigma) #TODO for each x, is there a miu and sigma corresponding to x?
-        error = abs(math.dot(phiX,W)-sin(x))
+def RBF(x, mean, sigma):
+	kernel = np.exp((-(x-mean)**2)/(2*(sigma**2)))
+	return kernel
+
+def P(x,hidden, sigma, mean):
+	Phi = np.zeros((x.shape[0], mean.shape[0]))
+	for i, xs in enumerate(x):
+		for j, mu in enumerate(mean):
+			Phi[i][j] = RBF(xs, mu, sigma)
+	return Phi
+
+def leastSquares(Phi, y):
+	W = np.linalg.pinv((Phi.T).dot(Phi)).dot(Phi.T).dot(y)
+	return W
 
 
+xTrain = np.arange(0,2*np.pi,0.1).reshape(-1,1)
+xTest = np.arange(0.05,2*np.pi, 0.1).reshape(-1,1)
 
+yTrain = np.sin(2*xTrain)
+yTest = np.sin(2*xTest)
 
+hidden = np.arange(1,15,1)
+sigma = 2
 
+e = []
+#Training
+for h in hidden:
+
+	arg = np.random.choice(len(xTrain),h)
+	mean = xTrain[arg]
+
+	Phi = P(xTrain, h, sigma, mean)
+	W = leastSquares(Phi,yTrain)
+	#Prediction
+	Phi2 = P(xTest, h, sigma, mean)
+	y = Phi2.dot(W)
+
+	error = np.sum(np.abs(y - yTest))/len(y)
+	e.append(error)
+	if h%2 == 0:
+		plt.plot(xTest, y, label = '%i units'%h)
+plt.plot(xTest, yTrain,'b',label = 'Real')		
+plt.legend()
+plt.title("RBF")
+plt.show()
+
+plt.plot(np.arange(len(e))+1,e,label='Error')
+plt.plot(np.arange(len(e))+1, 0.1*np.ones(len(e)),'--', label='0.1 threshold')
+plt.plot(np.arange(len(e))+1, 0.01*np.ones(len(e)),'--', label='0.01 threshold')
+plt.plot(np.arange(len(e))+1, 0.001*np.ones(len(e)),'--', label='0.001 threshold')
+plt.xlabel('Hidden Nodes')
+plt.ylabel('Absolute Error')
+plt.legend()
+plt.show()
