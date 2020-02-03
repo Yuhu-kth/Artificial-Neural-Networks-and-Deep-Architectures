@@ -91,7 +91,7 @@ for h in hidden:
 
 
 plt.plot(xTestf, yTrainf,'b',label = 'Real')
-plt.scatter(xTest, yTrain,label = 'Noisy data')		
+plt.scatter(xTest, yTrain,facecolor='green',label = 'Noisy data')		
 
 plt.legend()
 plt.title("Competitive Learning")
