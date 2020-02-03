@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 def square(x):
 	f = []
-	y = np.sin(2*x)
+	y = np.sin(x)
 	print(y.shape)
 	for ys in y:
 		if ys >= 0:
@@ -11,6 +11,7 @@ def square(x):
 		else:
 			f.append(-1)
 	return f
+
 
 def sine(x):
 	y = np.sin(x)
@@ -35,8 +36,10 @@ def leastSquares(Phi, y):
 xTrain = np.arange(0,2*np.pi,0.1).reshape(-1,1)
 xTest = np.arange(0.05,2*np.pi, 0.1).reshape(-1,1)
 
-yTrain = np.sin(2*xTrain)
-yTest = np.sin(2*xTest)
+# yTrain = np.sin(2*xTrain)
+# yTest = np.sin(2*xTest)
+yTrain = square(2*xTrain)
+yTest = square(2*xTest)
 
 hidden = np.arange(1,15,1)
 sigma = 2
@@ -58,6 +61,7 @@ for h in hidden:
 	e.append(error)
 	if h%2 == 0:
 		plt.plot(xTest, y, label = '%i units'%h)
+
 plt.plot(xTest, yTrain,'b',label = 'Real')		
 plt.legend()
 plt.title("RBF")
