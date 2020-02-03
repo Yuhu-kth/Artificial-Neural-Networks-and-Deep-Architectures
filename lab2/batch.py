@@ -56,11 +56,13 @@ for h in hidden:
 	#Prediction
 	Phi2 = P(xTest, h, sigma, mean)
 	y = Phi2.dot(W)
+	#-----------remove this for sin(2x) function
 	for i in range(len(y)):
 		if(y[i]>=0):
 			y[i]=1
 		else:
 			y[i]=-1
+	#-------------------------------------------
 	error = np.sum(np.abs(y - yTest))/len(y)
 	e.append(error)
 	if h%2 == 0:
