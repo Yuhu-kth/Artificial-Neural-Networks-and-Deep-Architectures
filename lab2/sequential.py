@@ -52,14 +52,18 @@ def firstW(n):
     return w
 
 #add noise
-noise = np.random.normal(0,0.1,63)
-xTrain = np.arange(0,2*np.pi,0.1).reshape(-1,1)
-xTest = np.arange(0.05,2*np.pi,0.1).reshape(-1,1)
+xTrain = np.arange(0,2*np.pi,0.1)
+xTest = np.arange(0.05,2*np.pi,0.1)
+noiseTrain = np.random.normal(0,0.1,xTrain.shape[0])
+noiseTest = np.random.normal(0,0.1,xTest.shape[0])
+
+xTrain = xTrain+noiseTrain
+xTest = xTest+noiseTest
 
 # yTrain = np.sin(2*xTrain)+noise
 # yTest = np.sin(2*xTest)+noise
-yTrain = square(2*xTrain)+noise
-yTest = square(2*xTest)+noise
+yTrain = square(2*xTrain)
+yTest = square(2*xTest)
 
 hidden = np.arange(1,15,1)
 sigma = 1
@@ -67,23 +71,21 @@ epoch = 25
 etha = 0.001
 e = []
 error = []
-
+Phi = np.zeros((xTrain.shape[0],)))
 W = firstW(xTrain.shape[0])
 #Training
 
-for h in hidden:
-    arg = np.random.choice(len(xTrain),h)
-    mean = xTrain[arg]
-    for i in range(epoch):
+for i in range(epoch):
+    tmp=[]
+    for h in hidden:
+        arg = np.random.choice(len(xTrain),h)
+        mean = xTrain[arg]
         for j in range(xTrain.shape[0]):
-            xtrain = xTrain[j]
-            # xtest = xTest[:,j].reshape(-1,1)
-            Phi = P(xtrain, h, sigma, mean)
-            print(j,mean,Phi.shape)
+            for k in range(h):
+                Phi[j,k] = P(xTrain, h, sigma, mean[k])
             W += Delta_rule(etha,Phi)
-
-            #Prediction
-            Phi2 = P(xTest[j], h, sigma, mean)
+        for i in range(h):
+            Phi2[:,i] = P(xTest, h, sigma, mean[i])
             y = Phi2*W
             # -----------remove this for sin(2x) function
             for i in range(len(y)):
@@ -92,9 +94,9 @@ for h in hidden:
                 else:
                     y[i]=-1
             # -------------------------------------------
-        error = np.sum(np.abs(y - yTest))/len(y)
-        e.append(error)
-        error = []        
+            error = np.sum(np.abs(y - yTest))/len(y)
+            e.append(error)
+            error = []        
     if h%2 == 0:
         plt.plot(xTest, y, label = '%i units'%h)
 
