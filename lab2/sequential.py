@@ -38,7 +38,7 @@ def Delta_rule(etha,phi_Xk):
     delta_W = np.dot(np.dot(etha,math.e),phi_Xk)
     return delta_W
 
-def firstW(n):
+def firstW(n,m):
     """initialization of weight matrix
     
     :param n: number of the row of inputs matrix
@@ -48,7 +48,7 @@ def firstW(n):
     :return: weight matrix
     :rtype: array
     """
-    w = np.random.randn(n)
+    w = np.random.randn(n,m)
     return w
 
 def sequential(numberHidden):
@@ -71,7 +71,7 @@ def sequential(numberHidden):
     error = []
     Phi = np.zeros((xTrain.shape[0],numberHidden))
     Phi2 = np.zeros((xTest.shape[0],numberHidden))
-    W = firstW(numberHidden)
+    W = firstW(xTrain.shape[0],numberHidden)
     #Training
 
     for i in range(epoch):
@@ -81,7 +81,7 @@ def sequential(numberHidden):
             for j in range(xTrain.shape[0]):
                 for k in range(h):
                     Phi[j,k] = P(xTrain, h, sigma, mean)
-                W += Delta_rule(etha,Phi).reshape(1,-1)
+                W += Delta_rule(etha,Phi)
             #prediction
             for i in range(h):
                 Phi2[:,i] = P(xTest, h, sigma, mean)
