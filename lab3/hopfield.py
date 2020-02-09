@@ -11,7 +11,7 @@ def update(w,x):
 		for i in range(x.shape[1]):
 			for j in range(x.shape[1]):
 				X[mu] += w[i,j]*x[mu,j]
-		X[mu] = signX[mu]
+		X[mu] = sign(X[mu])
 	return X
 
 def sign(x):
