@@ -1,6 +1,8 @@
 import numpy as np
+from itertools import product
 
 def Weights(x, scaling):
+	n=len(patterns[0])
 	W = (x.T).dot(x)
 	if scaling == True:
 		W = W/n	
@@ -27,8 +29,8 @@ patterns = np.array([[-1,-1,1,-1,1,-1,-1,1],[-1,-1,-1,-1,-1,1,-1,-1],[-1,1,1,-1,
 patterns = bias(patterns)
 
 
-W = Weights(patterns,5)
-#print(W)
+W = Weights(patterns,True)
+print(W.shape)
 
 distorted = np.array([[1,-1,1,-1,1,-1,-1,1],[1,1,-1,-1,-1,1,-1,-1],[1,1,1,-1,1,1,-1,1]], dtype = float)
 
@@ -43,3 +45,21 @@ for e in range(epochs):
 
 print(Xnew==patterns)
 print(Xnew)
+
+p = product([-1,1],repeat = 8)
+
+#print(len(list(p)))
+attr = np.zeros((2**8,8))
+i = 0
+for ps in list(p):
+	attr[i] = ps
+	i +=1
+print(i)
+print(attr.shape)
+
+attr = bias(attr)
+for e in range(epochs):
+	Xnew2 = update(attr,W)
+	attr = np.copy(Xnew2)
+print("Number of attractors: ", len(np.unique(attr,axis=0)))
+print(np.unique(attr,axis=0))
