@@ -57,7 +57,8 @@ print(W.shape)
 epochs = 100
 X = distorted[0]
 for e in range(epochs):
-	Xnew = update(X,W)
+	# Xnew = update(X,W)
+	Xnew = updateRandom(X,W)
 	X = np.copy(Xnew)
 
 fig = plt.figure()
