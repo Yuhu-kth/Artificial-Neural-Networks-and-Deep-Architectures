@@ -43,11 +43,10 @@ def updateRandom(x,w):
 		index = np.random.randint(0,N)
 		temp = w[index,:].dot(x)
 		Xnew[index] = sign(temp)
-	return Xnew,energyList
+	return Xnew
 
 
-
-data = np.genfromtxt('pict.dat.txt',delimiter =',').reshape(11,-1)
+data = np.genfromtxt('pict.dat',delimiter =',').reshape(11,-1)
 
 patterns = data[:9,:]
 distorted = data[9:,:]
@@ -63,6 +62,8 @@ for i in range(3):
 
 """
 W = Weights(patterns[:3,:],True)
+W = 0.5 * (W+W.T)
+#W = np.random.randn(1024,1024)
 print(W.shape)
 trainingPatterns=data[:3,:]
 testingPatterns=data[3:,:]
@@ -83,12 +84,12 @@ for e in range(epochs):
 	# Xnew = update(X,W)
 	Xnew = updateRandom(X,W)
 	X = np.copy(Xnew)
-    energyList.append(Energy(X,W))
+	energyList.append(Energy(X,W))
 
 plt.plot(range(epochs),energyList)
 plt.xlabel("Iterations")
 plt.ylabel("Energy")
-plt.title("Energy of disorted pattern p1 change with the iteration(random update)")
+plt.title("Energy of distorted pattern p1 change with the iteration(random update) and symmetric W")
 plt.show()
 
 
