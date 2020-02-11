@@ -25,6 +25,15 @@ def bias(x):
  	x = np.append(x, bias, axis=1)
  	return x
 
+def Energy(x,w):
+	dim = x.size
+	energy = 0
+	for i in range(dim):
+		for j in range(dim):
+			energy += w[i,j]*x[i]*x[j]
+	return -energy
+
+
 patterns = np.array([[-1,-1,1,-1,1,-1,-1,1],[-1,-1,-1,-1,-1,1,-1,-1],[-1,1,1,-1,-1,1,-1,1]], dtype = float)
 patterns = bias(patterns)
 
@@ -42,7 +51,7 @@ for e in range(epochs):
 		print("Stop crietria, itratation: ",e)
 		break
 	X = np.copy(Xnew)
-
+# print(Energy(X[0],W))
 print(Xnew==patterns)
 print(Xnew)
 
@@ -63,3 +72,7 @@ for e in range(epochs):
 	attr = np.copy(Xnew2)
 print("Number of attractors: ", len(np.unique(attr,axis=0)))
 print(np.unique(attr,axis=0))
+
+#energy 
+for mu in range(X.shape[0]):
+	print(Energy(X[mu],W))

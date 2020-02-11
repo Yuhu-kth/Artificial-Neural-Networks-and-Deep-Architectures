@@ -35,6 +35,14 @@ def updateRandom(x,w):
 		Xnew[index] = sign(temp)
 	return Xnew
 
+def Energy(x,w):
+	dim = x.size
+	energy = 0
+	for i in range(dim):
+		for j in range(dim):
+			energy += w[i,j]*x[i]*x[j]
+	return -energy
+
 data = np.genfromtxt('pict.dat.txt',delimiter =',').reshape(11,-1)
 
 patterns = data[:9,:]
@@ -64,10 +72,10 @@ for e in range(epochs):
 fig = plt.figure()
 a = fig.add_subplot(1,3,1)
 plt.imshow(patterns[0,:].reshape(32,-1))
-a.set_title('Training Pattern P1')
+a.set_title('Training P1')
 a = fig.add_subplot(1,3,2)
 plt.imshow(distorted[0,:].reshape(32,-1))
-a.set_title('Degradated Pattern of P1')
+a.set_title('Degradated P1')
 a = fig.add_subplot(1,3,3)
 plt.imshow(X.reshape(32,-1))
 a.set_title('Completed pattern')
@@ -83,13 +91,13 @@ for e in range(epochs):
 fig = plt.figure()
 a = fig.add_subplot(1,4,1)
 plt.imshow(patterns[1,:].reshape(32,-1))
-a.set_title('Training Pattern P2')
+a.set_title('TrainingP2')
 a = fig.add_subplot(1,4,2)
 plt.imshow(patterns[2,:].reshape(32,-1))
-a.set_title('Training Pattern P3')
+a.set_title('TrainingP3')
 a = fig.add_subplot(1,4,3)
 plt.imshow(distorted[1,:].reshape(32,-1))
-a.set_title('Degradated Patterns of P2 and P3')
+a.set_title('DegradatedP2\nP3')
 a = fig.add_subplot(1,4,4)
 plt.imshow(X.reshape(32,-1))
 a.set_title('Completed pattern')
