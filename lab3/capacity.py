@@ -66,28 +66,28 @@ print(patterns.shape)
 # 	plt.imshow(im)
 # 	plt.show()
 errorList = []
-for i in range(9):
-    for p in np.arange(0.1,1.1,0.1):
-        training = patterns[:i+1,:]
+for i in range(1,9):
+    for p in np.arange(0.1,0.2,0.1):
+        training = patterns[:i,:]
         distorted = noise(training,p)
         W = Weights(training,True)
         # print(distorted.shape)
         epochs = 1
         X = distorted[0]
-        Xbefore = np.copy(X)
         energyList=[]
         error = 0
+        print("p: ",p)
         for e in range(epochs):
             Xnew = update(X,W)
-            error = 1*(Xnew != Xbefore)
             X = np.copy(Xnew)
+        error = 1*(X != patterns[0])
         error = sum(error)
     errorList.append(error)
     print(errorList)
         
 
-plt.plot(np.arange(1,10),errorList)
-plt.title("Errors while increasing the number of training patterns")
-plt.xlabel("Indice of patterns added")
+plt.plot(np.arange(len(errorList)),errorList)
+plt.title("Errors in p1 while increasing the number of training patterns")
+plt.xlabel("number of patterns added")
 plt.ylabel("Error")
 plt.show()
