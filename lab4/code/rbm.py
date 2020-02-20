@@ -84,9 +84,13 @@ class RestrictedBoltzmannMachine():
 	    # [TODO TASK 4.1] run k=1 alternating Gibbs sampling : v_0 -> h_0 ->  v_1 -> h_1.
             # you may need to use the inference functions 'get_h_given_v' and 'get_v_given_h'.
             # note that inference methods returns both probabilities and activations (samples from probablities) and you may have to decide when to use what.
+            ph,h = self.get_h_given_v(visible_trainset)
+            pv,v = self.get_v_given_h(ph)
+
+            print(ph.shape, h.shape)
 
             # [TODO TASK 4.1] update the parameters using function 'update_params'
-            
+            self.update_params(v,h,pv,ph)
             # visualize once in a while when visible layer is input images
             
             if it % self.rf["period"] == 0 and self.is_bottom:
@@ -117,9 +121,8 @@ class RestrictedBoltzmannMachine():
         """
 
         # [TODO TASK 4.1] get the gradients from the arguments (replace the 0s below) and update the weight and bias parameters
-        
         self.delta_bias_v += self.learning_rate * (v_0-v_k)
-        self.delta_weight_vh += self.learning_rate
+        self.delta_weight_vh += self.learning_rate * (v_0.T.dot(h_0) - (v_k.T.dot(h_k)))
         self.delta_bias_h += self.learning_rate * (h_0-h_k)
         
         self.bias_v += self.delta_bias_v
@@ -144,10 +147,11 @@ class RestrictedBoltzmannMachine():
         assert self.weight_vh is not None
 
         n_samples = visible_minibatch.shape[0]
-
         # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of hidden layer (replace the zeros below) 
-        
-        return np.zeros((n_samples,self.ndim_hidden)), np.zeros((n_samples,self.ndim_hidden))
+        h = (visible_minibatch).dot(self.weight_vh)
+        prob = 1/(1+np.exp(-self.bias_h - h))
+
+        return prob,h
 
 
     def get_v_given_h(self,hidden_minibatch):
@@ -185,10 +189,10 @@ class RestrictedBoltzmannMachine():
                         
             # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of visible layer (replace the pass and zeros below)             
 
-            pass
+            v = (hidden_minibatch).dot(self.weight_vh.T)
+            prob = 1/(1 + np.exp(-self.bias_v - v)) 
         
-        return np.zeros((n_samples,self.ndim_visible)), np.zeros((n_samples,self.ndim_visible))
-
+        return prob,v
 
     
     """ rbm as a belief layer : the functions below do not have to be changed until running a deep belief net """
