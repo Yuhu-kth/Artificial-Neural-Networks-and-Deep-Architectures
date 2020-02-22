@@ -125,16 +125,17 @@ class RestrictedBoltzmannMachine():
 
         # [TODO TASK 4.1] get the gradients from the arguments (replace the 0s below) and update the weight and bias parameters
         
-        self.delta_weight_vh += self.learning_rate * (np.matmul(v_0.T,h_0) - np.matmul(v_k.T,h_k))
+        self.delta_weight_vh += self.learning_rate * (np.dot(np.transpose(v_0),h_0)- np.dot(np.transpose(v_k),h_k))
         for i in range(h_0.shape[0]):
             self.delta_bias_h += self.learning_rate * (h_0[i,:]-h_k[i,:])
             self.delta_bias_v += self.learning_rate * (v_0[i,:]-v_k[i,:])
         self.bias_v += self.delta_bias_v
         self.weight_vh += self.delta_weight_vh
         self.bias_h += self.delta_bias_h
-        print("weight",self.delta_weight_vh)
-        print("v",self.bias_v)
-        print("h",self.bias_h)
+        # print("weight",self.weight_vh)
+
+        # print("v",self.bias_v)
+        # print("h",self.bias_h)
         return
 
     def get_h_given_v(self,visible_minibatch):
@@ -154,13 +155,12 @@ class RestrictedBoltzmannMachine():
 
         n_samples = visible_minibatch.shape[0]
         # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of hidden layer (replace the zeros below) 
-        weight = (visible_minibatch).dot(self.weight_vh)
-        prob = 1/(1+np.exp(-self.bias_h - weight))
-        h = np.random.binomial(1,prob)
-        # v = (visible_minibatch).dot(self.weight_vh)
-        # prob = 1/(1+np.exp(-self.bias_h - v))
+    
+        ph = (visible_minibatch).dot(self.weight_vh)+self.bias_h
+        h = 1/(1+np.exp(-ph))
+        h = np.random.binomial(1,h)
 
-        return prob,h
+        return ph,h
 
 
     def get_v_given_h(self,hidden_minibatch):
@@ -198,11 +198,12 @@ class RestrictedBoltzmannMachine():
                         
             # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of visible layer (replace the pass and zeros below)             
 
-            weight = (hidden_minibatch).dot(self.weight_vh.T)
-            prob = 1/(1 + np.exp(-self.bias_v - weight)) 
-            v = np.random.binomial(1,prob)
+            pv = (hidden_minibatch).dot(self.weight_vh.T)+self.bias_v
+            v = 1/(1 + np.exp(-pv))
+            v = np.random.binomial(1,v) 
+
         
-        return prob,v
+        return pv,v
 
     
     """ rbm as a belief layer : the functions below do not have to be changed until running a deep belief net """
