@@ -102,7 +102,7 @@ class RestrictedBoltzmannMachine():
             # [TODO TASK 4.1] update the parameters using function 'update_params'
             self.update_params(visible_minibatch,h,pv,ph2)
             # visualize once in a while when visible layer is input images
-            if it % 250==0 of it == 0:
+            if it % 250==0 or it == 0:
                 error.append(np.sum(np.square(pv-visible_minibatch)))
             
             if it % self.rf["period"] == 0 and self.is_bottom:
@@ -215,7 +215,7 @@ class RestrictedBoltzmannMachine():
 
             vpre = (hidden_minibatch).dot(self.weight_vh.T)+self.bias_v
             pv = 1.0/(1.0 + np.exp(-vpre))
-            v = np.random.binomial(1,pv) 
+            # v = np.random.binomial(1,pv) 
 
         
         return pv,vpre
@@ -248,8 +248,13 @@ class RestrictedBoltzmannMachine():
         n_samples = visible_minibatch.shape[0]
 
         # [TODO TASK 4.2] perform same computation as the function 'get_h_given_v' but with directed connections (replace the zeros below) 
-        
-        return np.zeros((n_samples,self.ndim_hidden)), np.zeros((n_samples,self.ndim_hidden))
+        ph = (visible_minibatch).dot(self.weight_v_to_h)+self.bias_h
+        #print("prob ",ph)
+        ph = 1.0/(1.0+np.exp(-ph))
+        #print("act ",h)
+        #h = np.random.binomial(1,ph)
+        h = (ph>np.random.rand(self.batch_size, self.ndim_hidden)).astype(int)
+        return ph,h
 
 
     def get_v_given_h_dir(self,hidden_minibatch):
@@ -288,9 +293,10 @@ class RestrictedBoltzmannMachine():
                         
             # [TODO TASK 4.2] performs same computaton as the function 'get_v_given_h' but with directed connections (replace the pass and zeros below)             
 
-            pass
+            vpre = (hidden_minibatch).dot(self.weight_v_to_h.T)+self.bias_v
+            pv = 1.0/(1.0 + np.exp(-vpre))
             
-        return np.zeros((n_samples,self.ndim_visible)), np.zeros((n_samples,self.ndim_visible))        
+        return pv,vpre      
         
     def update_generate_params(self,inps,trgs,preds):
         
