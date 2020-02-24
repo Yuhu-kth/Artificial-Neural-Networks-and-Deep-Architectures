@@ -178,7 +178,6 @@ class RestrictedBoltzmannMachine():
 
         return ph,h
 
-
     def get_v_given_h(self,hidden_minibatch):
         
         """Compute probabilities p(v|h) and activations v ~ p(v|h)
@@ -206,19 +205,22 @@ class RestrictedBoltzmannMachine():
 
             # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of visible layer (replace the pass below). \
             # Note that this section can also be postponed until TASK 4.2, since in this task, stand-alone RBMs do not contain labels in visible layer.
-            
-            pass
+            pv = np.zeros_like(hidden_minibatch)
+            pv[:,:-self.n_labels] = sigmoid(hidden_minibatch[:,:-self.n_labels])
+            pv[:,-self.n_labels:] = softmax(hidden_minibatch[:,-self.n_labels:])
+            v[:,:-self.n_labels] = (pv[:,:-self.n_labels]>np.random.rand(self.batch_size, self.ndim_hidden)).astype(int)
+            v[:,-self.n_labels:] = np.random.binomial(1,pv[:,-self.n_labels:])
             
         else:
                         
             # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of visible layer (replace the pass and zeros below)             
 
-            vpre = (hidden_minibatch).dot(self.weight_vh.T)+self.bias_v
-            pv = 1.0/(1.0 + np.exp(-vpre))
-            # v = np.random.binomial(1,pv) 
+            pv = (hidden_minibatch).dot(self.weight_vh.T)+self.bias_v
+            pv = 1.0/(1.0 + np.exp(-pv))
+            v = np.random.binomial(1,pv) 
 
         
-        return pv,vpre
+        return pv,v
 
     
     """ rbm as a belief layer : the functions below do not have to be changed until running a deep belief net """
