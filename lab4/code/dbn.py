@@ -78,11 +78,11 @@ class DeepBeliefNet():
 
         #gibbs sampling
         for _ in range(self.n_gibbs_recog):
-            topVis[:,:-true_lbl.shape[1]]=pPen
+            topVis[:-true_lbl.shape[1]]=pPen
             _, topHidden = self.rbm_stack["pen+lbl--top"].get_h_given_v(topVis)
             _, topVis = self.rbm_stack["pen+lbl--top"].get_v_given_h(topHidden)
 
-        predicted_lbl = topVis[:,-true_lbl.shape[1]:]
+        predicted_lbl = topVis[-true_lbl.shape[1]:]
         print ("accuracy = %.2f%%"%(100.*np.mean(np.argmax(predicted_lbl,axis=1)==np.argmax(true_lbl,axis=1))))
         
         return
