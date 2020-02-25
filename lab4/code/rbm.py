@@ -256,6 +256,7 @@ class RestrictedBoltzmannMachine():
         #print("act ",h)
         #h = np.random.binomial(1,ph)
         h = (ph>np.random.rand(self.batch_size, self.ndim_hidden)).astype(int)
+        print("h.shape",h.shape)
         return ph,h
 
 
