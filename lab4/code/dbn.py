@@ -64,7 +64,8 @@ class DeepBeliefNet():
         n_samples = true_img.shape[0]
         
         vis = true_img # visible layer gets the image data
-        print("vis.shape",vis.shape)
+        print("vis.shape",vis.shape) # the shape is (60000,784)
+        #initial label units with the value of 0.1
         lbl = np.ones(true_lbl.shape)/10. # start the net by telling you know nothing about labels        
         
 
