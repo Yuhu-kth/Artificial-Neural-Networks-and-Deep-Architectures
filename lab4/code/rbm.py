@@ -178,6 +178,8 @@ class RestrictedBoltzmannMachine():
 
         return ph,h
 
+
+
     def get_v_given_h(self,hidden_minibatch):
         
         """Compute probabilities p(v|h) and activations v ~ p(v|h)
@@ -205,10 +207,13 @@ class RestrictedBoltzmannMachine():
 
             # [TODO TASK 4.1] compute probabilities and activations (samples from probabilities) of visible layer (replace the pass below). \
             # Note that this section can also be postponed until TASK 4.2, since in this task, stand-alone RBMs do not contain labels in visible layer.
-            pv = np.zeros_like(hidden_minibatch)
-            pv[:,:-self.n_labels] = sigmoid(hidden_minibatch[:,:-self.n_labels])
-            pv[:,-self.n_labels:] = softmax(hidden_minibatch[:,-self.n_labels:])
-            v[:,:-self.n_labels] = (pv[:,:-self.n_labels]>np.random.rand(self.batch_size, self.ndim_hidden)).astype(int)
+            pv = (hidden_minibatch).dot(self.weight_vh.T)+self.bias_v
+            #print(pv.shape)
+            v = np.zeros_like(pv)
+
+            pv[:,:-self.n_labels] = sigmoid(pv[:,:-self.n_labels])
+            pv[:,-self.n_labels:] = softmax(pv[:,-self.n_labels:])
+            v[:,:-self.n_labels] = (pv[:,:-self.n_labels]>np.random.rand(self.batch_size, pv.shape[1]-self.n_labels)).astype(int)
             v[:,-self.n_labels:] = np.random.binomial(1,pv[:,-self.n_labels:])
             
         else:
