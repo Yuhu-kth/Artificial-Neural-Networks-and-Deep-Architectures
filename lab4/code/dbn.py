@@ -112,17 +112,20 @@ class DeepBeliefNet():
         pen = self.rbm_stack['hid--pen']
         hid = self.rbm_stack['vis--hid']
 
-        #prob_topVis = np.random.uniform(0,1,(lbl.shape[0], top.bias_v.shape[0]))
-        #topVis = np.random.binomial(1,prob_topVis)
+        prob_topVis = np.random.uniform(0,1,(lbl.shape[0], top.bias_v.shape[0]))
+        topVis = np.random.binomial(1,prob_topVis)
 
-        prob_topVis = np.random.uniform(0,1,(1,top.bias_v.shape[0]))
+
         #print(prob_topVis.shape)
-        topVis = np.random.binomial(1, prob_topVis)
+        #topVis = np.random.binomial(1, np.abs(prob_topVis.reshape(1,-1)))
 
-        for _ in range(self.n_gibbs_gener):
+        #print(topVis)
+
+
+        for j in range(self.n_gibbs_gener):
             topVis[:,-lbl.shape[1]:] = lbl
             _,topH = top.get_h_given_v(topVis)
-            _,topVis = top.get_v_given_h(topH)
+            topVis,_ = top.get_v_given_h(topH)
             #print(topVis.shape)
             #print(topVis[0,:-lbl.shape[1]].shape)
             #print(lbl.shape)
@@ -130,12 +133,13 @@ class DeepBeliefNet():
             _,visPen = pen.get_v_given_h_dir(topVis[:,:-lbl.shape[1]])
             vis,_ = hid.get_v_given_h_dir(visPen)
 
-            vis = 200*vis
 
-            #plt.imshow(vis.reshape(self.image_size), cmap = 'gray')
-            #plt.show()
 
-            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", vmin = 0, vmax = 1, animated=True, interpolation=None) ] )
+            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="gray", vmin = 0, vmax = 1, animated=True, interpolation=None) ] )
+
+            if j == self.n_gibbs_gener-1:  
+                plt.imshow(vis.reshape(self.image_size), cmap = 'gray')
+                plt.savefig("%d.png"%np.argmax(true_lbl))
             
         anim = stitch_video(fig,records).save("%s.generate%d.mp4"%(name,np.argmax(true_lbl)))            
             
