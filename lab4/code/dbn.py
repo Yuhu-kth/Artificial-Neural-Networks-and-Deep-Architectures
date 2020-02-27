@@ -88,7 +88,7 @@ class DeepBeliefNet():
         return
 
     
-        def generate(self,true_lbl,name):
+    def generate(self,true_lbl,name):
         
         """Generate data from labels
 
@@ -115,25 +115,25 @@ class DeepBeliefNet():
         #prob_topVis = np.random.uniform(0,1,(lbl.shape[0], top.bias_v.shape[0]))
         #topVis = np.random.binomial(1,prob_topVis)
 
-        prob_topVis = np.random.uniform(0,1,(1,top.bias_v.shape[0]))
+        #prob_topVis = np.random.uniform(0,1,(1,top.bias_v.shape[0]))
         #print(prob_topVis.shape)
-        top_vis = np.random.binomial(1, prob_topVis)
+        topVis = np.random.binomial(1, top.bias_v)
 
         for _ in range(self.n_gibbs_gener):
-            top_vis[:,-lbl.shape[1]:] = lbl
-            _,topH = top.get_h_given_v(top_vis)
+            topVis[:,-lbl.shape[1]:] = lbl
+            _,topH = top.get_h_given_v(topVis)
             top_vis,topVis = top.get_v_given_h(topH)
             #print(topVis.shape)
             #print(topVis[0,:-lbl.shape[1]].shape)
             #print(lbl.shape)
 
             _,visPen = pen.get_v_given_h_dir(topVis[:,:-lbl.shape[1]])
-            vis,_ = hid.get_v_given_h_dir(visPen)
+            _,vis = hid.get_v_given_h_dir(visPen)
 
-            plt.imshow(vis.reshape(self.image_size))
-            plt.show()
-            
-            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", vmin=0, vmax=1, animated=True, interpolation=None) ] )
+            #plt.imshow(vis.reshape(self.image_size), cmap = 'gray')
+            #plt.show()
+
+            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", animated=True, interpolation=None) ] )
             
         anim = stitch_video(fig,records).save("%s.generate%d.mp4"%(name,np.argmax(true_lbl)))            
             
