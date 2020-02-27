@@ -284,7 +284,7 @@ class RestrictedBoltzmannMachine():
             pv = self.bias_v + np.dot(hidden_minibatch, self.weight_h_to_v)
             pv = sigmoid(pv)
             #v = sample_binary(pv) 
-            v = random.binomial(1,pv)
+            v = np.random.binomial(1,pv)
         return pv,v
 
 
