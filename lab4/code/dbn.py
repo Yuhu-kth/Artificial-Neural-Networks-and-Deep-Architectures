@@ -115,30 +115,31 @@ class DeepBeliefNet():
         #prob_topVis = np.random.uniform(0,1,(lbl.shape[0], top.bias_v.shape[0]))
         #topVis = np.random.binomial(1,prob_topVis)
 
-        #prob_topVis = np.random.uniform(0,1,(1,top.bias_v.shape[0]))
+        prob_topVis = np.random.uniform(0,1,(1,top.bias_v.shape[0]))
         #print(prob_topVis.shape)
-        topVis = np.random.binomial(1, top.bias_v)
+        topVis = np.random.binomial(1, prob_topVis)
 
         for _ in range(self.n_gibbs_gener):
             topVis[:,-lbl.shape[1]:] = lbl
             _,topH = top.get_h_given_v(topVis)
-            top_vis,topVis = top.get_v_given_h(topH)
+            _,topVis = top.get_v_given_h(topH)
             #print(topVis.shape)
             #print(topVis[0,:-lbl.shape[1]].shape)
             #print(lbl.shape)
 
             _,visPen = pen.get_v_given_h_dir(topVis[:,:-lbl.shape[1]])
-            _,vis = hid.get_v_given_h_dir(visPen)
+            vis,_ = hid.get_v_given_h_dir(visPen)
+
+            vis = 200*vis
 
             #plt.imshow(vis.reshape(self.image_size), cmap = 'gray')
             #plt.show()
 
-            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", animated=True, interpolation=None) ] )
+            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", vmin = 0, vmax = 1, animated=True, interpolation=None) ] )
             
         anim = stitch_video(fig,records).save("%s.generate%d.mp4"%(name,np.argmax(true_lbl)))            
             
         return
-
 
     def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
 
