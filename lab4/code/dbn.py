@@ -90,7 +90,6 @@ class DeepBeliefNet():
     def generate(self,true_lbl,name):
         
         """Generate data from labels
-
         Args:
           true_lbl: true labels shaped (number of samples, size of label layer)
           name: string used for saving a video of generated visible activations
@@ -104,19 +103,46 @@ class DeepBeliefNet():
         ax.set_xticks([]); ax.set_yticks([])
 
         lbl = true_lbl
+        # 'vis--hid' : RestrictedBoltzmannMachine(ndim_visible=sizes["vis"], ndim_hidden=sizes["hid"],
+        #                                             is_bottom=True, image_size=image_size, batch_size=batch_size),
+            
+        #     'hid--pen' : RestrictedBoltzmannMachine(ndim_visible=sizes["hid"], ndim_hidden=sizes["pen"], batch_size=batch_size),
+            
+        #     'pen+lbl--top' : RestrictedBoltzmannMachine(ndim_visible=sizes["pen"]+sizes["lbl"], ndim_hidden=sizes["top"],
+        #                                                 is_top=True, n_labels=n_labels, batch_size=batch_size)
+        top = self.rbm_stack['pen+lbl--top']
+        pen = self.rbm_stack['hid--pen']
+        hid = self.rbm_stack['vis--hid']
 
         # [TODO TASK 4.2] fix the label in the label layer and run alternating Gibbs sampling in the top RBM. From the top RBM, drive the network \ 
         # top to the bottom visible layer (replace 'vis' from random to your generated visible layer).
-            
+        probabilits_top_vis = np.random.uniform(0,1,(lbl.shape[0], top.bias_v.shape[0]))
+        top_vis = sample_binary(probabilits_top_vis)
+    
+        vis = np.zeros((28,28))# vis: visible layer, images
+        # perform gibbs sampling for 200 iterations
         for _ in range(self.n_gibbs_gener):
+            probabilits_top_vis[:,-lbl.shape[1]:] = lbl
+            probabilits_top_hid, top_hid = top.get_h_given_v(probabilits_top_vis)
+            probabilits_top_vis, top_vis = top.get_v_given_h(probabilits_top_hid)
 
-            vis = np.random.rand(n_sample,self.sizes["vis"])
+        for _ in range(200):
+            top_hid = sample_binary(probabilits_top_hid)
+            _, top_vis = top.get_v_given_h(top_hid)
+            _, pen_vis = pen.get_v_given_h_dir(top_vis)
+            v, _ = hid.get_v_given_h_dir(pen_vis)
+            # print("v",v.shape)
+            vis += v.reshape(28,28)
+
+
+        #     vis = np.random.rand(n_sample,self.sizes["vis"])
             
-            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", vmin=0, vmax=1, animated=True, interpolation=None) ] )
+        records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", vmin=0, vmax=1, animated=True, interpolation=None) ] )
             
         anim = stitch_video(fig,records).save("%s.generate%d.mp4"%(name,np.argmax(true_lbl)))            
             
-        return
+        return 
+
 
     def train_greedylayerwise(self, vis_trainset, lbl_trainset, n_iterations):
 
