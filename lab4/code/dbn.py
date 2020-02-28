@@ -226,15 +226,26 @@ class DeepBeliefNet():
         except IOError :            
 
             self.n_samples = vis_trainset.shape[0]
+            vis_hid = self.rbm_stack["vis--hid"]
+            hid_pen = self.rbm_stack["hid--pen"]
+            pen_lbl_top = self.rbm_stack["pen+lbl--top"]
+
 
             for it in range(n_iterations):            
                                                 
                 # [TODO TASK 4.3] wake-phase : drive the network bottom to top using fixing the visible and label data.
-
+                phid_h,hid_h = vis_hid.get_h_given_v_dir(vis_trainset)
+                ppen_h,pen_h = hid_pen.get_h_given_v_dir(hid_h)
+                top_v = np.hastack((pen_h,lbl_trainset))
+                ptop_h,top_h =pen_lbl_top.get_h_given_v_dir(top_v)
                 # [TODO TASK 4.3] alternating Gibbs sampling in the top RBM for k='n_gibbs_wakesleep' steps, also store neccessary information for learning this RBM.
-
+                for _ in range(self.n_gibbs_wakesleep):
+                    ptop_v,top_v = pen_lbl_top.get_v_given_h(top_h)
+                    ptop_h,top_h = pen_lbl_top.get_h_given_v(top_v)
                 # [TODO TASK 4.3] sleep phase : from the activities in the top RBM, drive the network top to bottom.
-
+                pS_pen_h,S_pen_h = ptop_v[:,:-lbl_trainset.shape[1]], top_v[:,:-lbl_trainset.shape[1]]
+                pS_hid_v,S_hid_v = hid_pen.get_v_given_h_dir(S_pen_h)
+                pS_vis,S_vis = vis_hid.get_v_given_h_dir(S_hid_v)
                 # [TODO TASK 4.3] compute predictions : compute generative predictions from wake-phase activations, and recognize predictions from sleep-phase activations.
                 # Note that these predictions will not alter the network activations, we use them only to learn the directed connections.
                 
