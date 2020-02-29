@@ -1,5 +1,6 @@
 from util import *
 from rbm import RestrictedBoltzmannMachine
+from skimage import exposure
 
 class DeepBeliefNet():    
 
@@ -42,13 +43,13 @@ class DeepBeliefNet():
 
         self.batch_size = batch_size
         
-        self.n_gibbs_recog = 15
+        self.n_gibbs_recog = 1#15
         
         self.n_gibbs_gener = 200
         
         self.n_gibbs_wakesleep = 5
 
-        self.print_period = 2000
+        self.print_period = 500
         
         return
 
@@ -72,11 +73,12 @@ class DeepBeliefNet():
         # NOTE : inferring entire train/test set may require too much compute memory (depends on your system). In that case, divide into mini-batches.
         
         _,hidden = self.rbm_stack["vis--hid"].get_h_given_v_dir(vis)
-        pPen,_ = self.rbm_stack["hid--pen"].get_h_given_v_dir(hidden)
+        _,Pen = self.rbm_stack["hid--pen"].get_h_given_v_dir(hidden)
 
-        topVis = np.hstack((pPen, lbl))
-        print(topVis.shape)
+        topVis = np.hstack((Pen, lbl))
+        #print(topVis.shape)
         #topVis[:,:,-true_lbl[1]] = Pen
+
         for _ in range(self.n_gibbs_recog):
             _, topH = self.rbm_stack["pen+lbl--top"].get_h_given_v(topVis)
             topVis,_=self.rbm_stack["pen+lbl--top"].get_v_given_h(topH)
@@ -87,7 +89,6 @@ class DeepBeliefNet():
         
         return
 
-    
     def generate(self,true_lbl,name):
         
         """Generate data from labels
@@ -113,7 +114,8 @@ class DeepBeliefNet():
         hid = self.rbm_stack['vis--hid']
 
         prob_topVis = np.random.uniform(0,1,(lbl.shape[0], top.bias_v.shape[0]))
-        topVis = np.random.binomial(1,prob_topVis)
+        topVis = prob_topVis
+        #topVis = np.random.binomial(1,prob_topVis)
 
 
         #print(prob_topVis.shape)
@@ -135,12 +137,11 @@ class DeepBeliefNet():
 
 
 
-            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="gray", vmin = 0, vmax = 1, animated=True, interpolation=None) ] )
+            records.append( [ ax.imshow(vis.reshape(self.image_size), cmap="bwr", vmin = 0, vmax = 1, animated=True, interpolation=None) ] )
+            """if j == self.n_gibbs_gener-1:  
+                plt.imshow(vis.reshape(self.image_size), cmap = 'bwr')
+                plt.savefig("%d.png"%np.argmax(true_lbl))"""
 
-            if j == self.n_gibbs_gener-1:  
-                plt.imshow(vis.reshape(self.image_size), cmap = 'gray')
-                plt.savefig("%d.png"%np.argmax(true_lbl))
-            
         anim = stitch_video(fig,records).save("%s.generate%d.mp4"%(name,np.argmax(true_lbl)))            
             
         return
@@ -226,35 +227,50 @@ class DeepBeliefNet():
         except IOError :            
 
             self.n_samples = vis_trainset.shape[0]
-            vis_hid = self.rbm_stack["vis--hid"]
-            hid_pen = self.rbm_stack["hid--pen"]
-            pen_lbl_top = self.rbm_stack["pen+lbl--top"]
 
+            ind = np.random.uniform(size = self.batch_size, high = self.n_samples).astype(int)
+            vis_minibatch = vis_trainset[ind]
+            lbl_minibatch = lbl_trainset[ind]
+
+            visHid = self.rbm_stack["vis--hid"]
+            hidPen = self.rbm_stack["hid--pen"]
+            penLblTop = self.rbm_stack["pen+lbl--top"]
 
             for it in range(n_iterations):            
                                                 
                 # [TODO TASK 4.3] wake-phase : drive the network bottom to top using fixing the visible and label data.
-                phid_h,hid_h = vis_hid.get_h_given_v_dir(vis_trainset)
-                ppen_h,pen_h = hid_pen.get_h_given_v_dir(hid_h)
-                top_v = np.hastack((pen_h,lbl_trainset))
-                ptop_h,top_h =pen_lbl_top.get_h_given_v_dir(top_v)
+                _,hidH = visHid.get_h_given_v_dir(vis_minibatch)
+                _,penH = hidPen.get_h_given_v_dir(hidH)
+                tV = np.hstack((penH, lbl_minibatch))
+                topV = tV
+                #print(tV.shape)
+                #_,topH = penLblTop.get_h_given_v(topV)
                 # [TODO TASK 4.3] alternating Gibbs sampling in the top RBM for k='n_gibbs_wakesleep' steps, also store neccessary information for learning this RBM.
                 for _ in range(self.n_gibbs_wakesleep):
-                    ptop_v,top_v = pen_lbl_top.get_v_given_h(top_h)
-                    ptop_h,top_h = pen_lbl_top.get_h_given_v(top_v)
+                    _,topH = penLblTop.get_h_given_v(topV)
+                    ptopV, topV = penLblTop.get_v_given_h(topH)
                 # [TODO TASK 4.3] sleep phase : from the activities in the top RBM, drive the network top to bottom.
-                pS_pen_h,S_pen_h = ptop_v[:,:-lbl_trainset.shape[1]], top_v[:,:-lbl_trainset.shape[1]]
-                pS_hid_v,S_hid_v = hid_pen.get_v_given_h_dir(S_pen_h)
-                pS_vis,S_vis = vis_hid.get_v_given_h_dir(S_hid_v)
+                #print(topH.shape)
+                _,hidPen1 =hidPen.get_v_given_h_dir(ptopV[:,:-lbl_minibatch.shape[1]])
+                vis,_ = visHid.get_v_given_h_dir(hidPen1)
                 # [TODO TASK 4.3] compute predictions : compute generative predictions from wake-phase activations, and recognize predictions from sleep-phase activations.
                 # Note that these predictions will not alter the network activations, we use them only to learn the directed connections.
-                
+                #rec
+                sleepPen,_ = hidPen.get_h_given_v_dir(hidPen1)
+                sleepHid,_ = visHid.get_h_given_v_dir(vis)
+                #gen
+                visprob,_ = visHid.get_v_given_h_dir(hidH)
+                hidprob,_ = hidPen.get_v_given_h_dir(penH)
+
                 # [TODO TASK 4.3] update generative parameters : here you will only use 'update_generate_params' method from rbm class.
-
+                visHid.update_generate_params(hidH, vis_minibatch, visprob)
+                hidPen.update_generate_params(penH, hidH, hidprob)
                 # [TODO TASK 4.3] update parameters of top rbm : here you will only use 'update_params' method from rbm class.
-
+                _,tH = penLblTop.get_h_given_v(tV)
+                penLblTop.update_params(tV, tH, topV, topH)
                 # [TODO TASK 4.3] update generative parameters : here you will only use 'update_recognize_params' method from rbm class.
-
+                hidPen.update_recognize_params(hidPen1, topV[:,:-lbl_minibatch.shape[1]], sleepPen)
+                visHid.update_recognize_params(vis, hidPen1, sleepHid)
                 if it % self.print_period == 0 : print ("iteration=%7d"%it)
                         
             self.savetofile_dbn(loc="trained_dbn",name="vis--hid")
