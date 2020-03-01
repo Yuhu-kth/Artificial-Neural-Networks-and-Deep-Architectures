@@ -26,8 +26,8 @@ def softmax(support):
       probabilities: shape is (size of mini-batch, number of categories)      
     """
 
-    expsup = np.exp(support-np.sum(support,axis=1)[:,None])
-    return expsup / np.sum(expsup,axis=1)[:,None]
+    expsup = np.exp(support-np.max(support,axis=1)[:,None])
+    return expsup / np.max(expsup,axis=1)[:,None]
 
 def sample_binary(on_probabilities):    
 
