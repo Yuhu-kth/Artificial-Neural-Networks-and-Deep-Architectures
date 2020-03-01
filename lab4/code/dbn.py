@@ -46,7 +46,7 @@ class DeepBeliefNet():
         
         self.n_gibbs_gener = 200
         
-        self.n_gibbs_wakesleep = 10
+        self.n_gibbs_wakesleep = 5
 
         self.print_period = 2000
         
@@ -234,10 +234,10 @@ class DeepBeliefNet():
 
             for it in range(n_iterations): 
                 ind = np.random.uniform(size = self.batch_size, high = self.n_samples).astype(int)
-                ind2 = np.random.uniform(size = self.batch_size, high = self.n_samples).astype(int)
+                #ind2 = np.random.uniform(size = self.batch_size, high = self.n_samples).astype(int)
 
                 vis_minibatch = vis_trainset[ind]
-                lbl_minibatch = lbl_trainset[ind2]           
+                lbl_minibatch = lbl_trainset[ind]           
                                                 
                 # [TODO TASK 4.3] wake-phase : drive the network bottom to top using fixing the visible and label data.
                 _,wakehidstates = visHid.get_h_given_v_dir(vis_minibatch)
@@ -253,7 +253,7 @@ class DeepBeliefNet():
 
                 # [TODO TASK 4.3] sleep phase : from the activities in the top RBM, drive the network top to bottom.
                 #print(topH.shape)
-                sleeppenstates = negpen
+                sleeppenstates = negpenstates
                 _,sleephidstates =hidPen.get_v_given_h_dir(sleeppenstates[:,:-lbl_minibatch.shape[1]])
                 sleepvisprob,_ = visHid.get_v_given_h_dir(sleephidstates)
                 # [TODO TASK 4.3] compute predictions : compute generative predictions from wake-phase activations, and recognize predictions from sleep-phase activations.
@@ -269,7 +269,8 @@ class DeepBeliefNet():
                 visHid.update_generate_params(wakehidstates, vis_minibatch, pvisprobs)
                 hidPen.update_generate_params(wakepenstates, wakehidstates, phidprobs)
                 # [TODO TASK 4.3] update parameters of top rbm : here you will only use 'update_params' method from rbm class.
-                print(np.sum(np.square(negpenstates - np.hstack((wakepenstates,lbl_minibatch)))))
+                #if it%500 == 0:
+                #    print(np.sum(np.square(negpenstates - np.hstack((wakepenstates,lbl_minibatch)))))
                 penLblTop.update_params(np.hstack((wakepenstates,lbl_minibatch)), waketopstates, negpenstates, negtoptates)
                 # [TODO TASK 4.3] update generative parameters : here you will only use 'update_recognize_params' method from rbm class.
                 hidPen.update_recognize_params(sleephidstates, sleeppenstates[:,:-lbl_minibatch.shape[1]], psleeppenstates)
